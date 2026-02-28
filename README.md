@@ -1,59 +1,340 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📦 Product & Inventory Management API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+REST API untuk mengelola produk dan kategori, termasuk fitur pencarian, update stok setelah transaksi, serta perhitungan total nilai inventory.
 
-## About Laravel
+Project ini dibangun menggunakan Laravel 12 dan MySQL.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2
+- Laravel 12
+- MySQL
+- Eloquent ORM
 
-## Learning Laravel
+Dependency dan system requirements proyek ini dikelola menggunakan Composer dan dapat dilihat pada file [composer.json](composer.json)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 📂 Fitur Utama
 
-## Laravel Sponsors
+- CRUD Produk
+- Menambah dan Membaca semua Kategori
+- Pencarian produk berdasarkan nama atau kategori
+- Update stok produk setelah transaksi
+- Perhitungan total nilai inventory (price × stock)
+- Global error handling untuk endpoint tidak ditemukan
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## ⚙️ Installation Guide
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 1. Clone Repository
 
-## Contributing
+```bash
+git clone https://github.com/cryzepy/ecommerce-inventory-api.git
+cd ecommerce-inventory-api
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 2. Install Dependencies
 
-## Code of Conduct
+```bash
+composer install
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 3. Copy Environment File
 
-## Security Vulnerabilities
+```bash
+cp .env.example .env
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Konfigurasi Database
 
-## License
+Edit file `.env`:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+### 5. Generate Application Key
+
+```bash
+php artisan key:generate
+```
+
+### 6. Jalankan Migration
+
+```bash
+php artisan migrate
+```
+
+### 7. Jalankan Server
+
+```bash
+php artisan serve
+```
+
+Base URL API:
+
+```
+http://127.0.0.1:8000/api
+```
+
+---
+
+# 🗄️ Database Structure
+
+## Categories Table
+
+| Field      | Type      |
+|------------|----------|
+| id         | bigint   |
+| name       | string (unique) |
+| created_at | timestamp |
+| updated_at | timestamp |
+
+## Products Table
+
+| Field          | Type |
+|----------------|------|
+| id             | bigint |
+| name           | string |
+| price          | decimal(11,2) |
+| stock_quantity | integer unsigned |
+| category_id    | foreign key (nullable) |
+| created_at     | timestamp |
+| updated_at     | timestamp |
+
+### Relasi
+- 1 kategori dapat memiliki banyak produk
+- 1 produk hanya memiliki 1 kategori (nullable)
+
+---
+
+# 📌 API Endpoints
+
+---
+
+## 🔹 Category Endpoints
+
+### Create Category
+
+**POST** `/api/categories`
+
+Request Body:
+
+```json
+{
+  "name": "Elektronik"
+}
+```
+
+Response 201:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Elektronik",
+    "created_at": "2026-01-01T00:00:00.000000Z",
+    "updated_at": "2026-01-01T00:00:00.000000Z"
+  }
+}
+```
+
+---
+
+### Get All Categories
+
+**GET** `/api/categories`
+
+Response 200:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Elektronik"
+    }
+  ]
+}
+```
+
+---
+
+## 🔹 Product Endpoints
+
+### Create Product
+
+**POST** `/api/products`
+
+```json
+{
+  "name": "Laptop",
+  "price": 15000000,
+  "stock_quantity": 10,
+  "category_id": 1
+}
+```
+
+Response 201:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Laptop",
+    "price": "15000000.00",
+    "stock_quantity": 10,
+    "category_id": 1,
+    "created_at": "2026-01-01T00:00:00.000000Z",
+    "updated_at": "2026-01-01T00:00:00.000000Z"
+  }
+}
+```
+
+---
+
+### Get All Products
+
+**GET** `/api/products`
+
+---
+
+### Get Product By ID
+
+**GET** `/api/products/{id}`
+
+Response 404 jika tidak ditemukan:
+
+```json
+{
+  "message": "Produk Tidak ditemukan."
+}
+```
+
+---
+
+### Update Product
+
+**PUT** `/api/products/{id}`
+
+```json
+{
+  "price": 12000000
+}
+```
+
+---
+
+### Delete Product
+
+**DELETE** `/api/products/{id}`
+
+Response:
+
+```json
+{
+  "message": "Produk berhasil dihapus."
+}
+```
+
+---
+
+## 🔎 Search Product
+
+Mencari berdasarkan nama atau kategori.
+
+**GET**
+```
+/api/products/search?name=laptop
+```
+
+atau
+
+```
+/api/products/search?category_id=1
+```
+
+---
+
+## 📦 Update Stock After Transaction
+
+Mengurangi stok setelah terjadi transaksi.
+
+**POST** `/api/products/update-stock`
+
+```json
+{
+  "product_id": 1,
+  "quantity_sold": 2
+}
+```
+
+Validasi:
+- Produk harus ada
+- Stok tidak boleh menjadi negatif
+
+Response:
+
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Laptop",
+    "price": "15000000.00",
+    "stock_quantity": 8
+  }
+}
+```
+
+---
+
+## 💰 Get Total Inventory Value
+
+Menghitung total nilai inventory berdasarkan:
+
+```
+SUM(price * stock_quantity)
+```
+
+**GET** `/api/inventory/value`
+
+Response:
+
+```json
+{
+  "data": {
+    "total_inventaris": 150000000
+  }
+}
+```
+
+---
+
+# ❗ Error Handling
+
+### Endpoint Tidak Ditemukan
+
+```json
+{
+  "message": "Endpoint tidak ditemukan"
+}
+```
+
+### Error Sistem
+
+```json
+{
+  "message": "Terjadi kesalahan pada sistem"
+}
+```
+---
+Dokumentasi  Video https://youtu.be/8BEmb7exUCw
