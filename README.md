@@ -336,5 +336,3 @@ Response:
   "message": "Terjadi kesalahan pada sistem"
 }
 ```
----
-Dokumentasi  Video https://youtu.be/8BEmb7exUCw
